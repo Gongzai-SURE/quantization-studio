@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大模型压缩量化 - LLM Quantization Studio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="#FF6B35"/>
+                    <path d="M8 16L14 22L24 10" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>LLM Quant Studio</span>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <a href="#" class="nav-link active" data-page="quantize">模型量化</a>
+            <a href="#" class="nav-link" data-page="warehouse">模型仓库</a>
+            <a href="#" class="nav-link" data-page="deploy">部署推理</a>
+            <a href="#" class="nav-link" id="docsLink">文档</a>
+        </nav>
+        <div class="header-right">
+            <button class="btn-icon" title="设置">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+            <button class="btn-primary" id="loginBtn">登录</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    工具箱
+                </h3>
+                <ul class="sidebar-menu">
+                    <li class="menu-item active">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="4 7 4 4 20 4 20 7"/>
+                            <line x1="9" y1="20" x2="15" y2="20"/>
+                            <line x1="12" y1="4" x2="12" y2="20"/>
+                        </svg>
+                        模型量化
+                    </li>
+                    <li class="menu-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
+                        </svg>
+                        在线推理
+                    </li>
+                    <li class="menu-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        模型导出
+                    </li>
+                    <li class="menu-item" data-action="history">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        历史记录
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">量化方法</h3>
+                <div class="quant-methods">
+                    <label class="method-option">
+                        <input type="checkbox" checked>
+                        <span class="checkmark"></span>
+                        AWQ (Activation aware)
+                    </label>
+                    <label class="method-option">
+                        <input type="checkbox">
+                        <span class="checkmark"></span>
+                        GPTQ
+                    </label>
+                    <label class="method-option">
+                        <input type="checkbox">
+                        <span class="checkmark"></span>
+                        GGUF
+                    </label>
+                    <label class="method-option">
+                        <input type="checkbox">
+                        <span class="checkmark"></span>
+                        INT8
+                    </label>
+                    <label class="method-option">
+                        <input type="checkbox">
+                        <span class="checkmark"></span>
+                        FP8
+                    </label>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 第一行：模型选择 -->
+            <section class="card model-selection">
+                <div class="card-header">
+                    <h2>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                        选择模型
+                    </h2>
+                    <span class="badge">Step 1/3</span>
+                </div>
+                <div class="card-body">
+                    <div class="model-search">
+                        <div class="search-box">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            <input type="text" id="modelSearch" placeholder="搜索模型名称，如: llama, qwen, mistral...">
+                        </div>
+                        <div class="search-filters">
+                            <select class="filter-select">
+                                <option value="">所有框架</option>
+                                <option value="pytorch">PyTorch</option>
+                                <option value="tensorflow">TensorFlow</option>
+                                <option value="jax">JAX</option>
+                            </select>
+                            <select class="filter-select">
+                                <option value="">所有任务</option>
+                                <option value="text-generation">文本生成</option>
+                                <option value="chat">对话</option>
+                                <option value="embedding">嵌入</option>
+                            </select>
+                            <select class="filter-select">
+                                <option value="">按大小</option>
+                                <option value="small">&lt; 1B 参数</option>
+                                <option value="medium">1B - 10B</option>
+                                <option value="large">&gt; 10B</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="model-grid" id="modelGrid">
+                        <!-- 模型卡片将通过JS动态生成 -->
+                    </div>
+
+                    <div class="pagination">
+                        <button class="btn-page" disabled>&lt;</button>
+                        <span class="page-info">1 / 12</span>
+                        <button class="btn-page">&gt;</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第二行：量化配置 -->
+            <section class="card quantization-config">
+                <div class="card-header">
+                    <h2>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        量化配置
+                    </h2>
+                    <span class="badge">Step 2/3</span>
+                </div>
+                <div class="card-body">
+                    <div class="config-grid">
+                        <!-- 量化位宽配置 -->
+                        <div class="config-section">
+                            <h4>平均量化位宽</h4>
+                            <div class="bit-config">
+                                <div class="bit-slider-container">
+                                    <div class="slider-labels">
+                                        <span>2 bit</span>
+                                        <span>4 bit</span>
+                                        <span>8 bit</span>
+                                        <span>16 bit</span>
+                                    </div>
+                                    <input type="range" id="bitSlider" min="2" max="16" value="4" step="1">
+                                    <div class="slider-value">
+                                        <span class="current-value" id="bitValue">4 bit</span>
+                                        <span class="value-desc" id="bitDesc">推荐用于大多数场景</span>
+                                    </div>
+                                </div>
+                                <div class="bit-presets">
+                                    <button class="preset-btn" data-bits="2">2-bit</button>
+                                    <button class="preset-btn active" data-bits="4">4-bit</button>
+                                    <button class="preset-btn" data-bits="6">6-bit</button>
+                                    <button class="preset-btn" data-bits="8">8-bit</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 量化策略 -->
+                        <div class="config-section">
+                            <h4>量化策略</h4>
+                            <div class="strategy-options">
+                                <label class="strategy-option">
+                                    <input type="radio" name="strategy" value="static" checked>
+                                    <div class="strategy-card">
+                                        <span class="strategy-name">静态量化</span>
+                                        <span class="strategy-desc">训练后量化，速度快</span>
+                                    </div>
+                                </label>
+                                <label class="strategy-option">
+                                    <input type="radio" name="strategy" value="dynamic">
+                                    <div class="strategy-card">
+                                        <span class="strategy-name">动态量化</span>
+                                        <span class="strategy-desc">推理时实时量化</span>
+                                    </div>
+                                </label>
+                                <label class="strategy-option">
+                                    <input type="radio" name="strategy" value="qat">
+                                    <div class="strategy-card">
+                                        <span class="strategy-name">量化感知训练</span>
+                                        <span class="strategy-desc">精度更高，需要训练</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 高级配置 -->
+                        <div class="config-section advanced-config">
+                            <h4>
+                                高级配置
+                                <button class="toggle-advanced" id="toggleAdvanced">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
+                                </button>
+                            </h4>
+                            <div class="advanced-options" id="advancedOptions" style="display: none;">
+                                <div class="option-row">
+                                    <label>分组大小</label>
+                                    <input type="number" value="128" min="1" max="1024">
+                                    <span class="hint">影响量化精度</span>
+                                </div>
+                                <div class="option-row">
+                                    <label>校准样本数</label>
+                                    <input type="number" value="128" min="1" max="1000">
+                                    <span class="hint">用于校准量化参数</span>
+                                </div>
+                                <div class="option-row">
+                                    <label>敏感层保护</label>
+                                    <select>
+                                        <option value="auto">自动检测</option>
+                                        <option value="manual">手动选择</option>
+                                        <option value="none">全部量化</option>
+                                    </select>
+                                </div>
+                                <div class="option-row checkbox-row">
+                                    <label>
+                                        <input type="checkbox" checked>
+                                        使用混合精度
+                                    </label>
+                                    <label>
+                                        <input type="checkbox">
+                                        启用KV Cache量化
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第三行：推理配置与执行 -->
+            <section class="card inference-config">
+                <div class="card-header">
+                    <h2>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        推理配置
+                    </h2>
+                    <span class="badge">Step 3/3</span>
+                </div>
+                <div class="card-body">
+                    <div class="inference-grid">
+                        <!-- 推理参数 -->
+                        <div class="inference-section">
+                            <h4>推理参数</h4>
+                            <div class="param-grid">
+                                <div class="param-item">
+                                    <label>Max Tokens</label>
+                                    <input type="number" value="1024" min="1" max="8192">
+                                </div>
+                                <div class="param-item">
+                                    <label>Temperature</label>
+                                    <input type="number" value="0.7" min="0" max="2" step="0.1">
+                                </div>
+                                <div class="param-item">
+                                    <label>Top-p</label>
+                                    <input type="number" value="0.9" min="0" max="1" step="0.05">
+                                </div>
+                                <div class="param-item">
+                                    <label>Top-k</label>
+                                    <input type="number" value="40" min="1" max="100">
+                                </div>
+                                <div class="param-item">
+                                    <label>Repetition Penalty</label>
+                                    <input type="number" value="1.1" min="0.5" max="2" step="0.1">
+                                </div>
+                                <div class="param-item">
+                                    <label>Seed</label>
+                                    <input type="number" value="42">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 测试输入 -->
+                        <div class="inference-section">
+                            <h4>测试输入</h4>
+                            <div class="prompt-templates">
+                                <div class="template-tabs">
+                                    <button class="template-tab active" data-template="chat">对话模式</button>
+                                    <button class="template-tab" data-template="completion">补全模式</button>
+                                    <button class="template-tab" data-template="custom">自定义</button>
+                                </div>
+                                <textarea id="promptInput" placeholder="输入您的测试提示词...">请解释一下什么是机器学习，以及它的主要应用场景。</textarea>
+                                <div class="prompt-actions">
+                                    <button class="btn-icon" title="清空">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"/>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon" title="使用示例">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                        </svg>
+                                    </button>
+                                    <span class="char-count">0 / 4096</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 执行按钮 -->
+                        <div class="execution-area">
+                            <div class="execution-options">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="saveModel" checked>
+                                    <span>保存量化模型</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="benchmark">
+                                    <span>运行基准测试</span>
+                                </label>
+                            </div>
+                            <button class="btn-run" id="runBtn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                                开始量化并推理
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 第四行：结果展示 -->
+            <section class="card results-section" id="resultsSection" style="display: none;">
+                <div class="card-header">
+                    <h2>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                        量化与推理结果
+                    </h2>
+                    <div class="result-actions">
+                        <button class="btn-secondary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            下载模型
+                        </button>
+                        <button class="btn-secondary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            复制结果
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- 统计信息 -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-value" id="modelSizeValue">-- GB</span>
+                                <span class="stat-label">模型大小</span>
+                                <span class="stat-change" id="modelSizeChange">--</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-value" id="latencyValue">-- s</span>
+                                <span class="stat-label">首Token延迟</span>
+                                <span class="stat-change" id="latencyChange">--</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="20" x2="12" y2="10"/>
+                                    <line x1="18" y1="20" x2="18" y2="4"/>
+                                    <line x1="6" y1="20" x2="6" y2="16"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-value" id="speedValue">-- tok/s</span>
+                                <span class="stat-label">生成速度</span>
+                                <span class="stat-change" id="speedChange">--</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon purple">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-value" id="pplValue">--</span>
+                                <span class="stat-label">困惑度(PPL)</span>
+                                <span class="stat-change" id="pplChange">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 综合评分 -->
+                    <div class="score-section">
+                        <div class="score-card">
+                            <div class="score-header">
+                                <span class="score-title">综合评分</span>
+                                <span class="score-badge" id="scoreBadge">--</span>
+                            </div>
+                            <div class="score-ring">
+                                <svg viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#E5E7EB" stroke-width="8"/>
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="url(#scoreGradient)" stroke-width="8"
+                                            stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="283"
+                                            transform="rotate(-90 50 50)" id="scoreRing"/>
+                                    <defs>
+                                        <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#FF6B35"/>
+                                            <stop offset="100%" stop-color="#F59E0B"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <span class="score-number" id="scoreNumber">0</span>
+                            </div>
+                            <div class="score-details">
+                                <div class="score-item">
+                                    <span>精度</span>
+                                    <span id="scoreAccuracy">--</span>
+                                </div>
+                                <div class="score-item">
+                                    <span>速度</span>
+                                    <span id="scoreSpeed">--</span>
+                                </div>
+                                <div class="score-item">
+                                    <span>显存</span>
+                                    <span id="scoreMemory">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 对话展示 -->
+                    <div class="conversation-display">
+                        <div class="conversation-header">
+                            <span>推理结果</span>
+                        </div>
+                        <div class="conversation-body" id="conversationBody">
+                            <div class="message assistant">
+                                <div class="message-avatar">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="4"/>
+                                        <line x1="1.05" y1="12" x2="7" y2="12"/>
+                                        <line x1="17.01" y1="12" x2="22.96" y2="12"/>
+                                    </svg>
+                                </div>
+                                <div class="message-content">
+                                    <p><strong>机器学习</strong>是人工智能的一个核心分支，它使计算机系统能够从数据中学习和改进，而无需被明确编程。</p>
+                                    <p><strong>主要应用场景包括：</strong></p>
+                                    <ul>
+                                        <li><strong>自然语言处理：</strong>机器翻译、情感分析、聊天机器人</li>
+                                        <li><strong>计算机视觉：</strong>图像识别、目标检测、人脸识别</li>
+                                        <li><strong>推荐系统：</strong>商品推荐、内容推荐、个性化广告</li>
+                                        <li><strong>预测分析：</strong>股价预测、销量预测、风险评估</li>
+                                        <li><strong>医疗诊断：</strong>疾病预测、影像分析、药物发现</li>
+                                    </ul>
+                                    <p>机器学习通过算法从大量数据中识别模式，并将这些模式应用于新的、未知的数据，从而实现智能化决策和预测。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 推理成本可视化 -->
+                    <div class="cost-visualization">
+                        <div class="cost-header">
+                            <h3>推理成本分析</h3>
+                            <div class="cost-actions">
+                                <button class="btn-icon" id="refreshChart" title="刷新图表">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="23 4 23 10 17 10"/>
+                                        <polyline points="1 20 1 14 7 14"/>
+                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 成本指标卡片 -->
+                        <div class="cost-metrics">
+                            <div class="cost-card">
+                                <div class="cost-icon memory">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="4" width="20" height="16" rx="2"/>
+                                        <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h8M6 16h.01M18 16h.01M6 20h.01"/>
+                                    </svg>
+                                </div>
+                                <div class="cost-info">
+                                    <span class="cost-label">显存占用</span>
+                                    <span class="cost-value" id="vramUsage">-- GB</span>
+                                    <div class="cost-bar">
+                                        <div class="cost-fill memory-fill" id="vramBar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="cost-hint" id="vramHint">--</span>
+                                </div>
+                            </div>
+                            <div class="cost-card">
+                                <div class="cost-icon speed">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                                    </svg>
+                                </div>
+                                <div class="cost-info">
+                                    <span class="cost-label">推理速度</span>
+                                    <span class="cost-value" id="inferenceSpeed">-- tok/s</span>
+                                    <div class="cost-bar">
+                                        <div class="cost-fill speed-fill" id="speedBar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="cost-hint" id="speedHint">--</span>
+                                </div>
+                            </div>
+                            <div class="cost-card">
+                                <div class="cost-icon latency">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <polyline points="12 6 12 12 16 14"/>
+                                    </svg>
+                                </div>
+                                <div class="cost-info">
+                                    <span class="cost-label">TTFT 延迟</span>
+                                    <span class="cost-value" id="ttftLatency">-- s</span>
+                                    <div class="cost-bar">
+                                        <div class="cost-fill latency-fill" id="latencyBar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="cost-hint" id="latencyHint">--</span>
+                                </div>
+                            </div>
+                            <div class="cost-card">
+                                <div class="cost-icon efficiency">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                                    </svg>
+                                </div>
+                                <div class="cost-info">
+                                    <span class="cost-label">能效比</span>
+                                    <span class="cost-value" id="efficiency">-- tok/s/W</span>
+                                    <div class="cost-bar">
+                                        <div class="cost-fill efficiency-fill" id="efficiencyBar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="cost-hint" id="efficiencyHint">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 高级图表区域 -->
+                        <div class="advanced-chart-section">
+                            <div class="chart-tabs">
+                                <button class="chart-tab active" data-chart="accuracy-speed">精度-速度</button>
+                                <button class="chart-tab" data-chart="bitwidth-vram">位宽-显存</button>
+                                <button class="chart-tab" data-chart="bitwidth-ppl">位宽-困惑度</button>
+                                <button class="chart-tab" data-chart="bitwidth-throughput">位宽-吞吐量</button>
+                                <button class="chart-tab" data-chart="seqlen-latency">序列长度-延迟</button>
+                                <button class="chart-tab" data-chart="history-comparison">历史对比</button>
+                            </div>
+
+                            <div class="chart-container" id="mainChartContainer">
+                                <!-- 精度-速度散点图 -->
+                                <div class="chart-view active" id="accuracy-speed-chart">
+                                    <div class="scatter-chart" id="accuracySpeedChart"></div>
+                                    <div class="chart-legend" id="asChartLegend"></div>
+                                </div>
+
+                                <!-- 位宽-显存折线图 -->
+                                <div class="chart-view" id="bitwidth-vram-chart">
+                                    <div class="line-chart" id="bitwidthVramChart"></div>
+                                    <div class="chart-legend" id="bvChartLegend"></div>
+                                </div>
+
+                                <!-- 位宽-困惑度折线图 -->
+                                <div class="chart-view" id="bitwidth-ppl-chart">
+                                    <div class="line-chart" id="bitwidthPplChart"></div>
+                                    <div class="chart-legend" id="bpChartLegend"></div>
+                                </div>
+
+                                <!-- 位宽-吞吐量对比图 -->
+                                <div class="chart-view" id="bitwidth-throughput-chart">
+                                    <div class="bar-chart" id="bitwidthThroughputChart"></div>
+                                    <div class="chart-legend" id="btChartLegend"></div>
+                                </div>
+
+                                <!-- 序列长度-延迟折线图 -->
+                                <div class="chart-view" id="seqlen-latency-chart">
+                                    <div class="line-chart" id="seqlenLatencyChart"></div>
+                                    <div class="chart-legend" id="slChartLegend"></div>
+                                </div>
+
+                                <!-- 历史对比图 -->
+                                <div class="chart-view" id="history-comparison-chart">
+                                    <div class="history-chart" id="historyChart"></div>
+                                    <div class="history-stats" id="historyStats"></div>
+                                </div>
+                            </div>
+
+                            <!-- 图表控制 -->
+                            <div class="chart-controls">
+                                <div class="control-group">
+                                    <label>当前模型:</label>
+                                    <select id="chartModelSelect">
+                                        <option value="current">使用当前选择</option>
+                                    </select>
+                                </div>
+                                <div class="control-group">
+                                    <label>对比模型:</label>
+                                    <select id="compareModelSelect">
+                                        <option value="">无</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 显卡性能对比 -->
+                    <div class="gpu-comparison">
+                        <div class="gpu-header">
+                            <h3>显卡性能对比</h3>
+                            <div class="gpu-series-tabs">
+                                <button class="gpu-tab active" data-series="all">全部</button>
+                                <button class="gpu-tab" data-series="rtx40">RTX 40系列</button>
+                                <button class="gpu-tab" data-series="rtx30">RTX 30系列</button>
+                                <button class="gpu-tab" data-series="a100">数据中心</button>
+                            </div>
+                        </div>
+
+                        <div class="gpu-cards">
+                            <!-- RTX 4090 -->
+                            <div class="gpu-card rtx40">
+                                <div class="gpu-rank">1</div>
+                                <div class="gpu-info">
+                                    <div class="gpu-name">NVIDIA RTX 4090</div>
+                                    <div class="gpu-spec">24GB GDDR6X · 16384 CUDA</div>
+                                </div>
+                                <div class="gpu-metrics">
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">速度</span>
+                                        <span class="metric-value">68.5 tok/s</span>
+                                        <span class="metric-bar">
+                                            <span class="metric-fill" style="width: 100%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">显存</span>
+                                        <span class="metric-value">6.2 GB / 24GB</span>
+                                        <span class="metric-bar">
+                                            <span class="metric-fill memory" style="width: 26%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">功耗</span>
+                                        <span class="metric-value">185W</span>
+                                        <span class="metric-badge optimal">推荐</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RTX 4080 -->
+                            <div class="gpu-card rtx40">
+                                <div class="gpu-rank">2</div>
+                                <div class="gpu-info">
+                                    <div class="gpu-name">NVIDIA RTX 4080</div>
+                                    <div class="gpu-spec">16GB GDDR6X · 9728 CUDA</div>
+                                </div>
+                                <div class="gpu-metrics">
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">速度</span>
+                                        <span class="metric-value">52.3 tok/s</span>
+                                        <span class="metric-bar">
+                                            <span class="metric-fill" style="width: 76%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">显存</span>
+                                        <span class="metric-value">6.2 GB / 16GB</span>
+                                        <span class="metric-bar">
+                                            <span class="metric-fill memory" style="width: 39%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">功耗</span>
+                                        <span class="metric-value">320W</span>
+                                        <span class="metric-badge">较高</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RTX 3090 Ti -->
+                            <div class="gpu-card rtx30">
+                                <div class="gpu-rank">3</div>
+                                <div class="gpu-info">
+                                    <div class="gpu-name">NVIDIA RTX 3090 Ti</div>
+                                    <div class="gpu-spec">24GB GDDR6X · 10752 CUDA</div>
+                                </div>
+                                <div class="gpu-metrics">
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">速度</span>
+                                        <span class="metric-value">48.7 tok/s</span>
+                                        <span class="metric-bar">
+                                            <span class="metric-fill" style="width: 71%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">显存</span>
+                                        <span class="metric-value">6.2 GB / 24GB</span>
+                                        <span class="metric-bar">
+                                            <span class="metric-fill memory" style="width: 26%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">功耗</span>
+                                        <span class="metric-value">450W</span>
+                                        <span class="metric-badge">高</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RTX 3080 -->
+                            <div class="gpu-card rtx30">
+                                <div class="gpu-rank">4</div>
+                                <div class="gpu-info">
+                                    <div class="gpu-name">NVIDIA RTX 3080</div>
+                                    <div class="gpu-spec">10GB GDDR6X · 8704 CUDA</div>
+                                </div>
+                                <div class="gpu-metrics">
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">速度</span>
+                                        <span class="metric-value">35.2 tok/s</span>
+                                        <span class="metric-bar">
+                                            <span class="metric-fill" style="width: 51%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">显存</span>
+                                        <span class="metric-value">6.2 GB / 10GB</span>
+                                        <span class="metric-bar warning">
+                                            <span class="metric-fill memory" style="width: 62%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">功耗</span>
+                                        <span class="metric-value">320W</span>
+                                        <span class="metric-badge">较高</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- A100 80GB -->
+                            <div class="gpu-card a100">
+                                <div class="gpu-rank">5</div>
+                                <div class="gpu-info">
+                                    <div class="gpu-name">NVIDIA A100 80GB</div>
+                                    <div class="gpu-spec">80GB HBM2e · 6912 CUDA</div>
+                                </div>
+                                <div class="gpu-metrics">
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">速度</span>
+                                        <span class="metric-value">89.4 tok/s</span>
+                                        <span class="metric-bar">
+                                            <span class="metric-fill premium" style="width: 100%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">显存</span>
+                                        <span class="metric-value">6.2 GB / 80GB</span>
+                                        <span class="metric-bar">
+                                            <span class="metric-fill memory" style="width: 8%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">功耗</span>
+                                        <span class="metric-value">300W</span>
+                                        <span class="metric-badge">数据中心</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- L40S -->
+                            <div class="gpu-card a100">
+                                <div class="gpu-rank">6</div>
+                                <div class="gpu-info">
+                                    <div class="gpu-name">NVIDIA L40S</div>
+                                    <div class="gpu-spec">48GB GDDR6X · 18176 CUDA</div>
+                                </div>
+                                <div class="gpu-metrics">
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">速度</span>
+                                        <span class="metric-value">78.6 tok/s</span>
+                                        <span class="metric-bar">
+                                            <span class="metric-fill premium" style="width: 88%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">显存</span>
+                                        <span class="metric-value">6.2 GB / 48GB</span>
+                                        <span class="metric-bar">
+                                            <span class="metric-fill memory" style="width: 13%"></span>
+                                        </span>
+                                    </div>
+                                    <div class="gpu-metric">
+                                        <span class="metric-label">功耗</span>
+                                        <span class="metric-value">350W</span>
+                                        <span class="metric-badge">数据中心</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 性能对比图表 -->
+                        <div class="comparison-chart">
+                            <h4>各显卡推理速度对比</h4>
+                            <div class="horizontal-bars">
+                                <div class="h-bar-row">
+                                    <span class="h-bar-label">A100 80GB</span>
+                                    <div class="h-bar-track">
+                                        <div class="h-bar-fill premium" style="width: 100%"></div>
+                                    </div>
+                                    <span class="h-bar-value">89.4 tok/s</span>
+                                </div>
+                                <div class="h-bar-row">
+                                    <span class="h-bar-label">L40S</span>
+                                    <div class="h-bar-track">
+                                        <div class="h-bar-fill premium" style="width: 88%"></div>
+                                    </div>
+                                    <span class="h-bar-value">78.6 tok/s</span>
+                                </div>
+                                <div class="h-bar-row">
+                                    <span class="h-bar-label">RTX 4090</span>
+                                    <div class="h-bar-track">
+                                        <div class="h-bar-fill" style="width: 77%"></div>
+                                    </div>
+                                    <span class="h-bar-value">68.5 tok/s</span>
+                                </div>
+                                <div class="h-bar-row">
+                                    <span class="h-bar-label">RTX 4080</span>
+                                    <div class="h-bar-track">
+                                        <div class="h-bar-fill" style="width: 58%"></div>
+                                    </div>
+                                    <span class="h-bar-value">52.3 tok/s</span>
+                                </div>
+                                <div class="h-bar-row">
+                                    <span class="h-bar-label">RTX 3090 Ti</span>
+                                    <div class="h-bar-track">
+                                        <div class="h-bar-fill" style="width: 54%"></div>
+                                    </div>
+                                    <span class="h-bar-value">48.7 tok/s</span>
+                                </div>
+                                <div class="h-bar-row">
+                                    <span class="h-bar-label">RTX 3080</span>
+                                    <div class="h-bar-track">
+                                        <div class="h-bar-fill" style="width: 39%"></div>
+                                    </div>
+                                    <span class="h-bar-value">35.2 tok/s</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fisher敏感度热力图 -->
+                    <div class="sensitivity-heatmap-section">
+                        <div class="heatmap-header">
+                            <h3>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <rect x="7" y="7" width="3" height="3"/>
+                                    <rect x="14" y="7" width="3" height="3"/>
+                                    <rect x="7" y="14" width="3" height="3"/>
+                                    <rect x="14" y="14" width="3" height="3"/>
+                                </svg>
+                                Fisher 敏感度热力图
+                            </h3>
+                            <div class="heatmap-controls">
+                                <select id="heatmapModel" class="filter-select">
+                                    <option value="llama-7b">LLaMA-7B (32层)</option>
+                                    <option value="qwen-7b">Qwen-7B (32层)</option>
+                                </select>
+                                <button class="btn-icon" id="refreshHeatmap" title="刷新热力图">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="23 4 23 10 17 10"/>
+                                        <polyline points="1 20 1 14 7 14"/>
+                                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="heatmap-body">
+                            <div class="heatmap-container" id="sensitivityHeatmap"></div>
+                            <div class="heatmap-legend">
+                                <span class="legend-label">低敏感度</span>
+                                <div class="gradient-bar"></div>
+                                <span class="legend-label">高敏感度</span>
+                            </div>
+                            <div class="heatmap-info" id="heatmapInfo">
+                                <span>悬停查看各层详细敏感度信息</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 模型仓库页面 - ModelScope 搜索风格 -->
+        <section class="page-section" id="warehousePage">
+            <div class="warehouse-container">
+                <!-- 搜索头部 -->
+                <div class="warehouse-header">
+                    <div class="warehouse-brand">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23F59E0B'/%3E%3Ctext x='16' y='21' font-size='14' fill='white' text-anchor='middle' font-weight='bold'%3EMS%3C/text%3E%3C/svg%3E" alt="ModelScope" class="brand-logo">
+                        <div class="brand-text">
+                            <h1>ModelScope 模型搜索</h1>
+                            <p>连接 Hugging Face 生态，发现更多开源模型</p>
+                        </div>
+                    </div>
+                    <button class="refresh-btn" id="refreshModelscope" onclick="refreshFromModelScope()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6"/>
+                            <path d="M1 20v-6h6"/>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                        </svg>
+                        刷新最新
+                    </button>
+                </div>
+
+                <!-- 模型类型标签 -->
+                <div class="model-type-tabs">
+                    <button class="type-tab active" data-type="latest" onclick="switchModelType('latest', this)">最新模型</button>
+                    <button class="type-tab" data-type="popular" onclick="switchModelType('popular', this)">热门模型</button>
+                    <button class="type-tab" data-type="all" onclick="switchModelType('all', this)">全部模型</button>
+                </div>
+
+                <!-- 搜索框 -->
+                <div class="search-section">
+                    <div class="modelscope-search">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" id="modelscopeSearch" placeholder="搜索模型名称、作者或标签... (例如: llama, qwen, chatglm)">
+                        <button class="search-btn" id="doSearch">搜索</button>
+                    </div>
+                    <div class="search-filters-inline">
+                        <select id="filterTask">
+                            <option value="">所有任务</option>
+                            <option value="text-generation">文本生成</option>
+                            <option value="text-classification">文本分类</option>
+                            <option value="question-answering">问答</option>
+                            <option value="translation">翻译</option>
+                            <option value="summarization">摘要</option>
+                            <option value="code-generation">代码生成</option>
+                        </select>
+                        <select id="filterSize">
+                            <option value="">所有规模</option>
+                            <option value="1b">1B 以下</option>
+                            <option value="3b">3B</option>
+                            <option value="7b">7B</option>
+                            <option value="13b">13B</option>
+                            <option value="34b">34B</option>
+                            <option value="70b">70B 以上</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 搜索结果 -->
+                <div class="search-results">
+                    <div class="results-header">
+                        <span class="results-count" id="resultsCount">加载中...</span>
+                        <div class="results-actions">
+                            <button class="btn-secondary btn-sm" onclick="showLocalModels()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                                </svg>
+                                本地模型
+                            </button>
+                            <button class="btn-secondary btn-sm" onclick="showFavorites()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                                我的收藏
+                            </button>
+                            <a href="https://modelscope.cn/models" target="_blank" class="btn-secondary btn-sm">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="2" y1="12" x2="22" y2="12"/>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                </svg>
+                                访问官网
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 模型列表 -->
+                    <div class="model-list" id="modelList">
+                        <!-- Models rendered here -->
+                    </div>
+
+                    <!-- 加载更多 -->
+                    <div class="load-more" id="loadMoreSection" style="display: none;">
+                        <button class="btn-secondary" id="loadMoreBtn">加载更多</button>
+                    </div>
+
+                    <!-- 加载中 -->
+                    <div class="search-loading" id="searchLoading" style="display: none;">
+                        <div class="spinner-small"></div>
+                        <span>加载中...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 部署推理页面 -->
+            <section class="page-section" id="deployPage">
+                <div class="card deploy-card">
+                    <div class="card-header">
+                        <h2>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                                <line x1="8" y1="21" x2="16" y2="21"/>
+                                <line x1="12" y1="17" x2="12" y2="21"/>
+                            </svg>
+                            部署推理
+                        </h2>
+                    </div>
+
+                    <div class="deploy-header">
+                        <p>选择已下载的模型，查看不同部署方式的配置信息</p>
+                    </div>
+
+                    <select class="deploy-model-select" id="deployModelSelect">
+                        <option value="">请选择模型...</option>
+                    </select>
+
+                    <div class="deploy-tabs">
+                        <button class="deploy-tab active" data-deploy="ollama">Ollama</button>
+                        <button class="deploy-tab" data-deploy="lmstudio">LM Studio</button>
+                        <button class="deploy-tab" data-deploy="vllm">vLLM</button>
+                        <button class="deploy-tab" data-deploy="api">API 部署</button>
+                    </div>
+
+                    <div class="deploy-panels">
+                        <div class="deploy-panel active" id="ollama-panel">
+                            <div class="deploy-code">
+                                <div class="deploy-code-header">
+                                    <span class="deploy-code-title">Ollama 配置文件</span>
+                                    <button class="copy-btn">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                        </svg>
+                                        复制
+                                    </button>
+                                </div>
+                                <pre><code id="ollamaConfig">请先选择一个模型...</code></pre>
+                            </div>
+                            <div class="deploy-info">
+                                <h4>部署步骤</h4>
+                                <ul>
+                                    <li>安装 Ollama: curl -fsSL https://ollama.ai/install.sh | sh</li>
+                                    <li>创建 Modelfile 文件</li>
+                                    <li>运行 ollama create 命令导入模型</li>
+                                    <li>使用 ollama run 命令启动推理</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="deploy-panel" id="lmstudio-panel">
+                            <div class="deploy-code">
+                                <div class="deploy-code-header">
+                                    <span class="deploy-code-title">LM Studio 配置</span>
+                                    <button class="copy-btn">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                        </svg>
+                                        复制
+                                    </button>
+                                </div>
+                                <pre><code id="lmstudioConfig">请先选择一个模型...</code></pre>
+                            </div>
+                            <div class="deploy-info">
+                                <h4>使用说明</h4>
+                                <ul>
+                                    <li>下载并安装 LM Studio: https://lmstudio.ai</li>
+                                    <li>打开应用，点击 "Load Model"</li>
+                                    <li>选择量化后的 GGUF 模型文件</li>
+                                    <li>API 端口默认 1234</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="deploy-panel" id="vllm-panel">
+                            <div class="deploy-code">
+                                <div class="deploy-code-header">
+                                    <span class="deploy-code-title">vLLM 启动命令</span>
+                                    <button class="copy-btn">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                        </svg>
+                                        复制
+                                    </button>
+                                </div>
+                                <pre><code id="vllmConfig">请先选择一个模型...</code></pre>
+                            </div>
+                            <div class="deploy-info">
+                                <h4>部署特点</h4>
+                                <ul>
+                                    <li>高性能推理，支持张量并行</li>
+                                    <li>支持多种量化方法 (AWQ, GPTQ)</li>
+                                    <li>OpenAI 兼容 API</li>
+                                    <li>适合数据中心部署</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="deploy-panel" id="api-panel">
+                            <div class="deploy-code">
+                                <div class="deploy-code-header">
+                                    <span class="deploy-code-title">FastAPI 服务代码</span>
+                                    <button class="copy-btn">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                        </svg>
+                                        复制
+                                    </button>
+                                </div>
+                                <pre><code id="apiConfig">请先选择一个模型...</code></pre>
+                            </div>
+                            <div class="deploy-info">
+                                <h4>部署方式</h4>
+                                <ul>
+                                    <li>使用 FastAPI 构建 OpenAI 兼容 API</li>
+                                    <li>支持 transformers 加载量化模型</li>
+                                    <li>支持 GPU 加速推理</li>
+                                    <li>可自定义推理参数</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="deploy-config">
+                        <h4>生成的配置</h4>
+                        <div id="deployConfigOutput">
+                            <p class="text-muted">请先选择一个模型</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 重新打开主内容区用于量化页面 -->
+        <main class="main-content" style="display: none;">
+            <!-- 占位，用于保持结构完整 -->
+        </main>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p class="loading-text">正在量化模型...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text">35%</p>
+        </div>
+    </div>
+
+    <!-- 通知容器 -->
+    <div id="notificationContainer"></div>
+
+    <script src="data-manager.js"></script>
+    <script src="quant-calculator.js"></script>
+    <script src="app.js"></script>
+
+    <!-- 登录模态框 -->
+    <div class="modal-overlay" id="loginModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>用户登录</h3>
+                <button class="modal-close" id="closeLoginModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="username" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="password" placeholder="请输入密码">
+                </div>
+                <button class="btn-primary" id="doLogin" style="width: 100%;">登录</button>
+                <p class="hint" style="text-align: center; margin-top: 12px;">演示模式：任意输入即可登录</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户面板 -->
+    <div class="modal-overlay" id="userPanel" style="display: none;">
+        <div class="modal user-panel-modal">
+            <div class="modal-header">
+                <h3>用户中心</h3>
+                <button class="modal-close" id="closeUserPanel">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-details">
+                        <span class="user-name" id="userName">用户名</span>
+                        <span class="user-time" id="userLoginTime">登录时间: -</span>
+                    </div>
+                </div>
+                <div class="user-stats">
+                    <div class="user-stat">
+                        <span class="stat-num" id="historyCount">0</span>
+                        <span class="stat-text">历史记录</span>
+                    </div>
+                    <div class="user-stat">
+                        <span class="stat-num" id="savedCount">0</span>
+                        <span class="stat-text">保存模型</span>
+                    </div>
+                </div>
+                <div class="user-actions">
+                    <button class="btn-secondary" id="exportData" style="width: 100%;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        导出数据备份
+                    </button>
+                    <button class="btn-secondary" id="clearData" style="width: 100%; color: var(--error-color);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        清空所有数据
+                    </button>
+                </div>
+                <button class="btn-primary" id="doLogout" style="width: 100%;">退出登录</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 历史记录面板 -->
+    <div class="modal-overlay" id="historyPanel" style="display: none;">
+        <div class="modal history-panel-modal">
+            <div class="modal-header">
+                <h3>量化历史记录</h3>
+                <button class="modal-close" id="closeHistoryPanel">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="history-list" id="historyList">
+                    <div class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        <p>暂无历史记录</p>
+                        <span>运行量化任务后会显示在这里</span>
+                    </div>
+                </div>
+                <button class="btn-secondary" id="clearHistory" style="width: 100%; margin-top: 16px;">清空历史记录</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            transition: var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            outline: none;
+            transition: var(--transition-fast);
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* User panel */
+        .user-panel-modal {
+            max-width: 360px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-time {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .user-stat {
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .stat-num {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .user-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        /* History panel */
+        .history-panel-modal {
+            max-width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-panel-modal .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            transition: var(--transition-fast);
+        }
+
+        .history-item:hover {
+            border-color: var(--primary-color);
+        }
+
+        .history-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            background: var(--primary-light);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .history-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .history-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .history-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .history-delete {
+            padding: 4px;
+            color: var(--text-tertiary);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-fast);
+        }
+
+        .history-delete:hover {
+            background: var(--bg-tertiary);
+            color: var(--error-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state svg {
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .empty-state span {
+            font-size: 0.875rem;
+        }
+    </style>
+
+    <!-- 文档教程模态框 -->
+    <div class="modal-overlay" id="docsModal" style="display: none;">
+        <div class="modal docs-modal">
+            <div class="modal-header">
+                <h3>使用教程</h3>
+                <button class="modal-close" id="closeDocsModal">&times;</button>
+            </div>
+            <div class="modal-body docs-body">
+                <div class="docs-sidebar">
+                    <div class="docs-nav">
+                        <a href="#intro" class="docs-nav-item active">简介</a>
+                        <a href="#quick-start" class="docs-nav-item">快速开始</a>
+                        <a href="#model-select" class="docs-nav-item">选择模型</a>
+                        <a href="#quantization" class="docs-nav-item">量化配置</a>
+                        <a href="#results" class="docs-nav-item">结果解读</a>
+                        <a href="#gpu" class="docs-nav-item">显卡对比</a>
+                        <a href="#history" class="docs-nav-item">历史记录</a>
+                        <a href="#tips" class="docs-nav-item">实用技巧</a>
+                        <a href="#faq" class="docs-nav-item">常见问题</a>
+                    </div>
+                </div>
+                <div class="docs-content">
+                    <section id="intro" class="docs-section">
+                        <h2>Quantization Studio 简介</h2>
+                        <p>Quantization Studio 是一个专业的模型量化工具平台，帮助您轻松实现大语言模型的量化压缩。</p>
+                        <div class="info-box">
+                            <div class="info-icon">💡</div>
+                            <div class="info-content">
+                                <strong>什么是模型量化？</strong>
+                                <p>模型量化是将模型参数从高精度（如FP32/FP16）转换为低精度（如INT8/INT4）的技术，可在<strong>几乎不损失精度</strong>的情况下，显著减少模型体积、加速推理、降低显存占用。</p>
+                            </div>
+                        </div>
+                        <h3>主要功能</h3>
+                        <ul class="feature-list">
+                            <li><span class="feature-icon">🔧</span> 支持多种量化方法（AWQ/GPTQ/GGUF/INT8/FP8）</li>
+                            <li><span class="feature-icon">📊</span> 实时计算压缩率、速度提升、显存节省等指标</li>
+                            <li><span class="feature-icon">🖥️</span> 多显卡性能对比分析</li>
+                            <li><span class="feature-icon">📈</span> 可视化图表展示精度-速度权衡曲线</li>
+                            <li><span class="feature-icon">💾</span> 历史记录保存与对比</li>
+                        </ul>
+                    </section>
+
+                    <section id="quick-start" class="docs-section">
+                        <h2>快速开始</h2>
+                        <p>只需3步即可完成模型量化：</p>
+                        <div class="steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4>选择模型</h4>
+                                    <p>从模型仓库中选择您要量化的模型，点击模型卡片选中。</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4>配置参数</h4>
+                                    <p>调整量化位宽（推荐4-bit），选择量化方法。</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4>运行量化</h4>
+                                    <p>点击"开始量化"按钮，系统将自动计算并展示结果。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="model-select" class="docs-section">
+                        <h2>选择模型</h2>
+                        <p>模型选择区域提供以下功能：</p>
+                        <ul>
+                            <li><strong>模型搜索</strong> - 输入关键词快速查找模型</li>
+                            <li><strong>参数筛选</strong> - 按模型规模（7B/13B/70B等）筛选</li>
+                            <li><strong>标签过滤</strong> - 按模型类型（Chat/Code/Embedding等）过滤</li>
+                        </ul>
+                        <div class="info-box warning">
+                            <div class="info-icon">⚠️</div>
+                            <div class="info-content">
+                                <strong>显存提醒</strong>
+                                <p>选择模型后，系统会根据模型规模和量化配置，预估所需显存。建议根据您的显卡显存选择合适的位宽。</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="quantization" class="docs-section">
+                        <h2>量化配置</h2>
+                        <h3>量化位宽选择</h3>
+                        <table class="docs-table">
+                            <thead>
+                                <tr><th>位宽</th><th>压缩率</th><th>速度提升</th><th>精度损失</th><th>适用场景</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>2-bit</td><td>8x</td><td>2.3x</td><td>~58%</td><td>极致压缩实验</td></tr>
+                                <tr><td>3-bit</td><td>5.3x</td><td>2.0x</td><td>~35%</td><td>探索性测试</td></tr>
+                                <tr><td style="background: #DBEAFE;"><strong>4-bit</strong></td><td style="background: #DBEAFE;"><strong>4x</strong></td><td style="background: #DBEAFE;"><strong>1.8x</strong></td><td style="background: #DBEAFE;"><strong>~12%</strong></td><td style="background: #DBEAFE;"><strong>推荐日常使用</strong></td></tr>
+                                <tr><td>6-bit</td><td>2.7x</td><td>1.5x</td><td>~6%</td><td>平衡精度与大小</td></tr>
+                                <tr><td>8-bit</td><td>2x</td><td>1.2x</td><td>~3%</td><td>高质量输出</td></tr>
+                                <tr><td>16-bit</td><td>1x</td><td>1.0x</td><td>0%</td><td>原始精度</td></tr>
+                            </tbody>
+                        </table>
+                        <h3>量化方法说明</h3>
+                        <div class="method-cards">
+                            <div class="method-card">
+                                <h4>AWQ</h4>
+                                <p>Activation-aware Weight Quantization，基于激活重要性加权，精度损失小，速度快。</p>
+                            </div>
+                            <div class="method-card">
+                                <h4>GPTQ</h4>
+                                <p>基于Hessian矩阵的逐层优化方法，适合大规模模型量化。</p>
+                            </div>
+                            <div class="method-card">
+                                <h4>GGUF</h4>
+                                <p>GGML的新格式，CPU/GPU混合推理优化，社区广泛支持。</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="results" class="docs-section">
+                        <h2>结果解读</h2>
+                        <p>量化完成后，系统会展示详细的性能指标：</p>
+                        <div class="result-cards">
+                            <div class="result-card">
+                                <span class="result-label">模型大小</span>
+                                <span class="result-desc">量化后模型的磁盘占用大小</span>
+                            </div>
+                            <div class="result-card">
+                                <span class="result-label">首Token延迟 (TTFT)</span>
+                                <span class="result-desc">生成第一个Token所需时间，影响响应速度</span>
+                            </div>
+                            <div class="result-card">
+                                <span class="result-label">生成速度</span>
+                                <span class="result-desc">每秒生成的Token数量 (tok/s)</span>
+                            </div>
+                            <div class="result-card">
+                                <span class="result-label">困惑度 (PPL)</span>
+                                <span class="result-desc">语言模型评估指标，越低越好</span>
+                            </div>
+                        </div>
+                        <h3>综合评分</h3>
+                        <p>系统会根据精度、速度、显存三个维度计算综合评分（0-100分）：</p>
+                        <ul>
+                            <li><strong style="color: #059669;">90分以上：优秀</strong> - 性价比最高的选择</li>
+                            <li><strong style="color: #10B981;">75-89分：良好</strong> - 日常使用推荐</li>
+                            <li><strong style="color: #F59E0B;">60-74分：一般</strong> - 需要权衡选择</li>
+                            <li><strong style="color: #DC2626;">60分以下：较差</strong> - 不建议使用</li>
+                        </ul>
+                    </section>
+
+                    <section id="gpu" class="docs-section">
+                        <h2>显卡对比</h2>
+                        <p>系统支持多款显卡的性能对比分析：</p>
+                        <div class="gpu-table">
+                            <table class="docs-table">
+                                <thead>
+                                    <tr><th>显卡</th><th>显存</th><th>推荐位宽</th><th>特点</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>RTX 4090</td><td>24GB</td><td>4-8 bit</td><td>综合性能最强，推荐</td></tr>
+                                    <tr><td>RTX 4080</td><td>16GB</td><td>4-6 bit</td><td>性价比之选</td></tr>
+                                    <tr><td>RTX 3090 Ti</td><td>24GB</td><td>4-8 bit</td><td>老旗舰仍能打</td></tr>
+                                    <tr><td>RTX 3080</td><td>10GB</td><td>4-5 bit</td><td>入门级选择</td></tr>
+                                    <tr><td>A100 80GB</td><td>80GB</td><td>2-8 bit</td><td>数据中心级，专业部署</td></tr>
+                                    <tr><td>L40S</td><td>48GB</td><td>2-8 bit</td><td>新一代数据中心卡</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section id="history" class="docs-section">
+                        <h2>历史记录</h2>
+                        <p>登录后系统会自动保存您的量化历史：</p>
+                        <ul>
+                            <li>记录每次量化的模型、位宽、结果</li>
+                            <li>支持查看历史对比图表</li>
+                            <li>可导出完整数据备份</li>
+                            <li>清空历史保护隐私</li>
+                        </ul>
+                        <div class="info-box">
+                            <div class="info-icon">💡</div>
+                            <div class="info-content">
+                                <strong>提示</strong>
+                                <p>历史记录存储在浏览器本地，登录后数据会关联到您的账户（演示模式下仍保存在本地）。</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="tips" class="docs-section">
+                        <h2>实用技巧</h2>
+                        <div class="tips-grid">
+                            <div class="tip-card">
+                                <h4>🎯 位宽选择建议</h4>
+                                <p>日常对话使用 4-bit，追求高质量输出使用 6-8 bit，显存紧张时可用 3-bit 应急。</p>
+                            </div>
+                            <div class="tip-card">
+                                <h4>💾 显存优化技巧</h4>
+                                <p>长上下文需要更多KV Cache显存，建议使用 4-bit 或更低位宽来换取更长上下文。</p>
+                            </div>
+                            <div class="tip-card">
+                                <h4>⚡ 速度优化建议</h4>
+                                <p>量化后的模型在消费级显卡上推理速度提升明显，A100等数据中心卡提升较小。</p>
+                            </div>
+                            <div class="tip-card">
+                                <h4>📊 查看对比图表</h4>
+                                <p>使用"历史对比"图表查看不同模型、不同位宽的性能曲线，便于做出最优选择。</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="faq" class="docs-section">
+                        <h2>常见问题</h2>
+                        <div class="faq-list">
+                            <div class="faq-item">
+                                <h4>Q: 量化会损失多少精度？</h4>
+                                <p>A: 4-bit 量化精度损失通常在 1-3%，8-bit 几乎无损。实际损失取决于模型规模和量化方法。</p>
+                            </div>
+                            <div class="faq-item">
+                                <h4>Q: 我的显卡能跑多少B的模型？</h4>
+                                <p>A: RTX 4090 (24GB) 可运行 70B @ 4-bit；RTX 3080 (10GB) 可运行 13B @ 4-bit。</p>
+                            </div>
+                            <div class="faq-item">
+                                <h4>Q: 量化模型如何部署？</h4>
+                                <p>A: 可使用 LM Studio、Ollama、vLLM 等工具加载 GGUF/量化格式的模型文件。</p>
+                            </div>
+                            <div class="faq-item">
+                                <h4>Q: 为什么速度提升和理论值不符？</h4>
+                                <p>A: 实际速度受显存带宽、批大小、上下文长度、硬件驱动等多因素影响。</p>
+                            </div>
+                            <div class="faq-item">
+                                <h4>Q: 如何选择量化方法？</h4>
+                                <p>A: GGUF 适合本地部署，AWQ/GPTQ 适合服务端，大模型推荐 AWQ，小模型用 GPTQ 即可。</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Docs Modal Styles */
+        .docs-modal {
+            max-width: 1000px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .docs-modal .modal-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .docs-sidebar {
+            width: 200px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .docs-nav {
+            padding: 12px;
+        }
+
+        .docs-nav-item {
+            display: block;
+            padding: 10px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            transition: var(--transition-fast);
+            margin-bottom: 4px;
+        }
+
+        .docs-nav-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .docs-nav-item.active {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .docs-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px;
+        }
+
+        .docs-section {
+            margin-bottom: 48px;
+            scroll-margin-top: 20px;
+        }
+
+        .docs-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .docs-section h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 24px 0 12px;
+        }
+
+        .docs-section p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .docs-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .docs-section ul li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .docs-section ul li::before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: var(--primary-color);
+        }
+
+        /* Info Box */
+        .info-box {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            background: #F0F9FF;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-box.warning {
+            background: #FFFBEB;
+            border-left-color: var(--warning-color);
+        }
+
+        .info-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .info-content strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .info-content p {
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        /* Feature List */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .feature-list li {
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .feature-list li::before {
+            display: none;
+        }
+
+        .feature-icon {
+            margin-right: 8px;
+        }
+
+        /* Steps */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .step {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        /* Docs Table */
+        .docs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.875rem;
+        }
+
+        .docs-table th,
+        .docs-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .docs-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+        }
+
+        .docs-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Method Cards */
+        .method-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .method-card {
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .method-card h4 {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .method-card p {
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        /* Result Cards */
+        .result-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .result-card {
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .result-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .result-desc {
+            font-size: 0.8125rem;
+            color: var(--text-tertiary);
+        }
+
+        /* Tips Grid */
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .tip-card {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .tip-card h4 {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .tip-card p {
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        /* FAQ */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .faq-item {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .faq-item h4 {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .faq-item p {
+            margin: 0;
+        }
+    </style>
+</body>
